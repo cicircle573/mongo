@@ -3,18 +3,15 @@ version: 2.1
 references:
   - &CERT_KEY certs-cache-{{ checksum "certs_cache_key" }}-v3
 
-# Enable dynamic configuration
 setup: true
 
 filters: &all_tags
   tags:
     only: /^\d+\.\d+\.\d+([a-z0-9\-\+])*/
 
-# Include the continuation orb for dynamic configuration
 orbs:
   continuation: circleci/continuation@0.2.0
 
-# Define jobs
 jobs:
   setup:
     executor: continuation/default
@@ -22,30 +19,16 @@ jobs:
       - checkout
       - maybe_build_certs
       - run:
+          name: Run Build
+          command: make build # your build command
+      - run:
           name: Generate config
-          command: |
-            tools/circle-generate-config.sh generated_config.yml
+          command: tools/circle-generate-config.sh generated_config.yml
       - continuation/continue:
-          configuration_path: generated_config.yml # Use dynamically generated config
-
-  build:
-    docker:
-      - image: cimg/base:current  # Use CircleCI's base image for container runners
-    steps:
-      - run:
-          name: Say Hello
-          command: echo "Hello, World! I'm running on a self-hosted runner!"
-      - run:
-          name: Creating Dummy Artifacts
-          command: |
-            echo "my artifact file" > /tmp/art-1;
-            mkdir /tmp/artifacts;
-            echo "my artifact files in a dir" > /tmp/artifacts/art-2;
+          configuration_path: generated_config.yml
       - store_artifacts:
-          path: /tmp/art-1
-          destination: artifact-file
-      - store_artifacts:
-          path: /tmp/artifacts
+          path: build # directory where build outputs are located
+          destination: build_artifacts # optional, for organizing in CircleCI interface
 
 commands:
   maybe_build_certs:
@@ -73,13 +56,8 @@ commands:
             - ~/project/tools/ssl/ca-clients
             - ~/project/tools/ssl/mongooseim
 
-# Define workflows
 workflows:
   setup:
     jobs:
       - setup:
           filters: *all_tags
-  build-workflow:
-    jobs:
-      - build
-
