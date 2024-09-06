@@ -21,7 +21,7 @@ jobs:
       - maybe_build_certs
       - run:
           name: Install jq
-          command: apt-get update && apt-get install -y jq
+          command: sudo apt-get update && sudo apt-get install -y jq
       - run:
           name: Generate config
           command: |
