@@ -21,7 +21,7 @@ jobs:
       - maybe_build_certs
       - run:
           name: Install jq
-          command: sudo apt-get update && sudo apt-get install -y jq && sudo apt-get install -y libssl-dev unixodbc rsync
+          command: sudo apt-get update && sudo apt-get install -y jq 
       - run:
           name: Generate config
           command: |
